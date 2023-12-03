@@ -8,6 +8,7 @@ class RickProvider extends ChangeNotifier {
   
   List<Character> characters = [];
   List<Episode> episodes = [];
+  List<Location> locations = [];
 
  getCharacters(int page) async {
     var result = await http.get(Uri.https(url, "api/character", {
@@ -35,4 +36,32 @@ class RickProvider extends ChangeNotifier {
     }
     return episodes;
   }
+   getEpisode(int epi) async {
+    var result = await http.get(Uri.https(url, "api/episode", {
+      'page': epi.toString(),
+    }));
+    final response = EpisodeResponse.fromRawJson(result.body);
+    episodes.addAll(response.results);
+    notifyListeners();
+  }
+    Future<List<Episode>> getEpiso(Episode episode) async {
+    episodes = [];
+    for (var i = 0; i < episode.episode!.length; i++) {
+      final result = await http.get(Uri.parse(episode.episode![i]));
+      final response = Episode.fromRawJson(result.body);
+      episodes.add(response);
+      notifyListeners();
+    }
+    return episodes;
+  }
+ Future<List<Episode>> searchEpisodesByName(String name) async {
+    // Filtrar los episodios cuyo nombre contiene la consulta (ignorando mayúsculas y minúsculas)
+    final filteredEpisodes = episodes
+        .where((episode) =>
+            episode.name?.toLowerCase().contains(name.toLowerCase()) ?? false)
+        .toList();
+
+    return Future.value(filteredEpisodes);
+  }
+
 }

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:rickandmorty/models/character_response.dart';
 
+
+
 class CharacterSlider extends StatelessWidget {
    final List<Character> characters;
   final String? name;
@@ -52,7 +54,7 @@ class _MoviePoster extends StatelessWidget {
       child: Column(
         children: [
           GestureDetector(
-            onTap: () => Navigator.pushNamed(context, 'details', arguments: character),
+            onTap: () =>  Navigator.pushNamed(context, 'personaje', arguments: character),
             child: ClipRRect(
               borderRadius: BorderRadius.circular(20),
               child: FadeInImage(

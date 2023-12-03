@@ -4,8 +4,10 @@ import 'package:rickandmorty/models/character_response.dart';
 import 'package:rickandmorty/providers/rick_provider.dart';
 
 class CharacterScreen extends StatelessWidget {
+
+  final List<Character> Detalles;
   
-  const CharacterScreen({super.key});
+  const CharacterScreen({super.key,  required this.Detalles});
 
   @override
   Widget build(BuildContext context) {
@@ -40,9 +42,11 @@ class CharacterScreen extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
-               //   cardData("Status:", character.status!),
-                 // cardData("Specie:", character.species),
+                cardData("Status:", character.status),
+                  cardData("Specie:", character.species),
                   cardData("Origin:", character.origin.name),
+                 // cardData("Origin:", character.gender),
+                  cardData("Gender:", character.gender),
                 ],
               ),
             ),

@@ -1,21 +1,22 @@
+import 'package:meta/meta.dart';
 import 'dart:convert';
 
-class EpisodeResponse {
+class LocationsResponse {
     Info info;
-    List<Episode> results;
+    List<Locations> results;
 
-    EpisodeResponse({
+    LocationsResponse({
         required this.info,
         required this.results,
     });
 
-    factory EpisodeResponse.fromRawJson(String str) => EpisodeResponse.fromJson(json.decode(str));
+    factory LocationsResponse.fromRawJson(String str) => LocationsResponse.fromJson(json.decode(str));
 
-   // String toRawJson() => json.encode(toJson());
+  //  String toRawJson() => json.encode(toJson());
 
-    factory EpisodeResponse.fromJson(Map<String, dynamic> json) => EpisodeResponse(
+    factory LocationsResponse.fromJson(Map<String, dynamic> json) => LocationsResponse(
         info: Info.fromJson(json["info"]),
-        results: List<Episode>.from(json["results"].map((x) => Episode.fromJson(x))),
+        results: List<Locations>.from(json["results"].map((x) => Locations.fromJson(x))),
     );
 
     Map<String, dynamic> toJson() => {
@@ -39,7 +40,7 @@ class Info {
 
     factory Info.fromRawJson(String str) => Info.fromJson(json.decode(str));
 
-   // String toRawJson() => json.encode(toJson());
+    String toRawJson() => json.encode(toJson());
 
     factory Info.fromJson(Map<String, dynamic> json) => Info(
         count: json["count"],
@@ -56,35 +57,35 @@ class Info {
     };
 }
 
-class Episode {
+class Locations {
     int id;
     String name;
-    String airDate;
-    String episode;
-    List<String> characters;
+    String type;
+    String dimension;
+    List<String> residents;
     String url;
     DateTime created;
 
-    Episode({
+    Locations({
         required this.id,
         required this.name,
-        required this.airDate,
-        required this.episode,
-        required this.characters,
+        required this.type,
+        required this.dimension,
+        required this.residents,
         required this.url,
         required this.created,
     });
 
-    factory Episode.fromRawJson(String str) => Episode.fromJson(json.decode(str));
+    factory Locations.fromRawJson(String str) => Locations.fromJson(json.decode(str));
 
    // String toRawJson() => json.encode(toJson());
 
-    factory Episode.fromJson(Map<String, dynamic> json) => Episode(
+    factory Locations.fromJson(Map<String, dynamic> json) => Locations(
         id: json["id"],
         name: json["name"],
-        airDate: json["air_date"],
-        episode: json["episode"],
-        characters: List<String>.from(json["characters"].map((x) => x)),
+        type: json["type"],
+        dimension: json["dimension"],
+        residents: List<String>.from(json["residents"].map((x) => x)),
         url: json["url"],
         created: DateTime.parse(json["created"]),
     );
@@ -92,9 +93,9 @@ class Episode {
     Map<String, dynamic> toJson() => {
         "id": id,
         "name": name,
-        "air_date": airDate,
-        "episode": episode,
-        "characters": List<dynamic>.from(characters.map((x) => x)),
+        "type": type,
+        "dimension": dimension,
+        "residents": List<dynamic>.from(residents.map((x) => x)),
         "url": url,
         "created": created.toIso8601String(),
     };

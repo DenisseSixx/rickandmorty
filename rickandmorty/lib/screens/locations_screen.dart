@@ -1,20 +1,16 @@
-import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
+/*import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:rickandmorty/models/character_response.dart';
+import 'package:rickandmorty/models/locations_response.dart';
 import 'package:rickandmorty/providers/rick_provider.dart';
-import 'package:rickandmorty/screens/character_details.dart';
-import 'package:rickandmorty/widgets/search_delegate.dart';
 
-class CharacterListScreen extends StatefulWidget {
-  final List<Character> p;
-  const CharacterListScreen({super.key, required this.p});
-
+class LocationScreen extends StatelessWidget {
+  final List<Locations> L;
+  const LocationScreen({super.key, required this.L});
+ 
   @override
-  State<CharacterListScreen> createState() => _CharacterState();
+  State<LocationScreen> createState() => _LocationState();
 }
-
-class _CharacterState extends State<CharacterListScreen> {
+class _LocationState extends State<LocationScreen> {
   final scrollController = ScrollController();
   bool isLoading = false;
   int page = 1;
@@ -140,3 +136,4 @@ class CharacterList extends StatelessWidget {
     );
   }
 }
+}*/

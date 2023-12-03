@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:rickandmorty/models/character_response.dart';
 import 'package:rickandmorty/providers/rick_provider.dart';
 import 'package:rickandmorty/screens/character_details.dart';
 import 'package:rickandmorty/screens/character_list.dart';
+import 'package:rickandmorty/screens/episode_details.dart';
+import 'package:rickandmorty/screens/episode_screen.dart';
 import 'package:rickandmorty/screens/home_screen.dart';
-
+import 'package:rickandmorty/screens/pages.dart';
+import 'package:rickandmorty/services/services.dart';
 void main() => runApp(const AppState());
 
   class AppState extends StatelessWidget {
@@ -20,10 +24,12 @@ void main() => runApp(const AppState());
       providers: [
         ChangeNotifierProvider(
           //AVISA QUE HAY CAMBI ASI QUE SE ACTUALIZA,
-          create: (_) => RickProvider(),
+          create: (_) => AuthService(),
           lazy:
               false, //normalmetne es perezoso pero aqui hacemos que no sea asi e inicie al inicar la aplicacion
-        )
+        ), 
+        ChangeNotifierProvider(create: (_)=>RickProvider(),
+        lazy: false,)
       ],
       child: MyApp(),
     ); //pide varios providers, depende si son varias peticiones http
@@ -40,10 +46,17 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
        debugShowCheckedModeBanner: false,
       title: 'Rick and Morty',
-       initialRoute: 'a',
+       initialRoute: 'login',
       routes: {
-        'a':(_)=> HomeScreen(),
+       'login': (_)=> LoginPage(),
+        'registro': (_)=> RegistroPage(),
+        'home': (_)=> HomeScreen(),
+        'checking': (_)=> CheckAuthScreen(),
         'details':(_)=> CharacterListScreen(p: [],),
+        'personaje':(_)=>CharacterScreen(Detalles: []),
+        'episodios':(_)=>EpisodeListScreen(epi: [],),
+        'epidetail':(_)=>EpisodeScreen(Det: [])
+
        // 'chatacter':()=> CharacterScreen(a: [],)
       },
       theme:ThemeData(

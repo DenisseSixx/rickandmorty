@@ -34,7 +34,10 @@ return Drawer(
         ),
         ListTile(
           leading: Icon(Icons.account_circle),
-          title: Text('Episodeos'),
+          title: Text('Capitulos'),
+          onTap: (){
+            Navigator.pushNamed(context, 'episodios');
+          },
         ),
         ListTile(
           leading: Icon(Icons.settings),
