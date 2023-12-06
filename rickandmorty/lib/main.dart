@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:rickandmorty/models/character_response.dart';
 import 'package:rickandmorty/providers/rick_provider.dart';
 import 'package:rickandmorty/screens/character_details.dart';
 import 'package:rickandmorty/screens/character_list.dart';
@@ -22,20 +21,16 @@ void main() => runApp(const AppState());
     return MultiProvider(
       
       providers: [
-        ChangeNotifierProvider(
-          //AVISA QUE HAY CAMBI ASI QUE SE ACTUALIZA,
-          create: (_) => AuthService(),
-          lazy:
-              false, //normalmetne es perezoso pero aqui hacemos que no sea asi e inicie al inicar la aplicacion
+        ChangeNotifierProvider(  create: (_) => AuthService(), 
+        lazy:   false, //normalmetne es perezoso pero aqui hacemos que no sea asi e inicie al inicar la aplicacion
         ), 
         ChangeNotifierProvider(create: (_)=>RickProvider(),
         lazy: false,)
       ],
       child: MyApp(),
-    ); //pide varios providers, depende si son varias peticiones http
+    );//pide varios providers, depende si son varias peticiones http
   }
-}
-
+  }
 
 
 class MyApp extends StatelessWidget {
@@ -69,4 +64,3 @@ class MyApp extends StatelessWidget {
     );
   }
 }
-

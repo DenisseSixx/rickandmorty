@@ -80,4 +80,55 @@ class AuthService extends ChangeNotifier {
   Future<String> readToken() async {
     return await storage.read(key: 'token') ?? '';
   }
+
+//////////////
+  Future<void> addFavorite(int characterId) async {
+    try {
+      final token = await readToken();
+      final url = Uri.http(_baseUrl, '/api/Cuentas/Favorito');
+      final response = await http.post(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+        body: json.encode({'characterId': characterId}),
+      );
+
+      if (response.statusCode == 200) {
+        print('Personaje agregado a favoritos');
+      } else {
+        print('Error al agregar personaje a favoritos');
+      }
+    } catch (error) {
+      print('Error: $error');
+    }
+  }
+
+  Future<List<int>> getFavorites() async {
+    try {
+      final token = await readToken();
+      final url = Uri.http(_baseUrl, '/api/Cuentas/Favorito');
+      final response = await http.get(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final List<dynamic> data = json.decode(response.body);
+        final List<int> favorites =
+            data.map((fav) => fav['characterId'] as int).toList();
+        return favorites;
+      } else {
+        print('Error al obtener favoritos');
+        return [];
+      }
+    } catch (error) {
+      print('Error: $error');
+      return [];
+    }
+  }
 }

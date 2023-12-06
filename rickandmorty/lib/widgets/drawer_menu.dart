@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:rickandmorty/models/character_response.dart';
-import 'package:rickandmorty/screens/character_details.dart';
+
+import '../services/auth_services.dart';
+
 
 class MenuDrawer extends StatelessWidget {
   final List<Character> per;
@@ -8,6 +11,7 @@ class MenuDrawer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final authService = Provider.of<AuthService>(context, listen: false);
 return Drawer(
     child: ListView(
       padding: EdgeInsets.zero,
@@ -40,8 +44,13 @@ return Drawer(
           },
         ),
         ListTile(
-          leading: Icon(Icons.settings),
-          title: Text('Locaciones'),
+            leading: const Icon(Icons.exit_to_app),
+            title: const Text('Sing out'),
+          onTap: () {
+            authService.logout();
+            Navigator.pushReplacementNamed(context, 'login');
+          }
+
         ),
       ],
     ),

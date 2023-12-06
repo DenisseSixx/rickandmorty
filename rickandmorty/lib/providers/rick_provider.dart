@@ -2,8 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:rickandmorty/models/character_response.dart';
 import 'package:http/http.dart' as http;
 import 'package:rickandmorty/models/episode_response.dart';
+import 'package:rickandmorty/services/auth_services.dart';
+import 'package:collection/collection.dart';
 
 class RickProvider extends ChangeNotifier {
+
+
+  
   String url = 'rickandmortyapi.com';
   
   List<Character> characters = [];
@@ -64,4 +69,7 @@ class RickProvider extends ChangeNotifier {
     return Future.value(filteredEpisodes);
   }
 
+   
 }
+  
+

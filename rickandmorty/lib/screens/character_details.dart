@@ -55,6 +55,7 @@ class CharacterScreen extends StatelessWidget {
               style: TextStyle(fontSize: 17),
             ),
             EpisodeList(size: size, character: character)
+          
           ],
         ),
       ),

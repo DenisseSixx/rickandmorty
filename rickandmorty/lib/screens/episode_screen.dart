@@ -1,16 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:rickandmorty/models/episode_response.dart';
 import 'package:rickandmorty/providers/rick_provider.dart';
-import 'package:rickandmorty/screens/episode_details.dart';
 import 'package:rickandmorty/widgets/search_delegate.dart';
-import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:rickandmorty/models/episode_response.dart';
-import 'package:rickandmorty/providers/rick_provider.dart';
-import 'package:rickandmorty/screens/episode_details.dart';
-import 'package:rickandmorty/widgets/search_delegate.dart';
+
 
 class EpisodeListScreen extends StatefulWidget {
   final List<Episode> epi;

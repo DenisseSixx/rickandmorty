@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'package:rickandmorty/models/episode_response.dart';
-import 'package:rickandmorty/providers/rick_provider.dart';
 
 class EpisodeScreen extends StatelessWidget {
   final List<Episode> Det;
@@ -17,7 +15,7 @@ class EpisodeScreen extends StatelessWidget {
       appBar: AppBar(
         centerTitle: true,
         title: Text(episode.name),
-        backgroundColor: Colors.indigo, // Puedes cambiar el color del AppBar
+        backgroundColor: Colors.green,
       ),
       body: SingleChildScrollView(
         child: Column(
@@ -25,31 +23,17 @@ class EpisodeScreen extends StatelessWidget {
           children: [
             Container(
               padding: const EdgeInsets.all(16),
-              color: Colors.indigoAccent.withOpacity(0.1), // Fondo ligeramente azul
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
+              color: Colors.greenAccent.withOpacity(0.1),
+              child: Column(
                 children: [
-                  Expanded(
-                    child: CardData("Air date:", episode.airDate),
-                  ),
-                  Expanded(
-                    child: CardData("Episode:", episode.episode),
-                  ),
-                  Expanded(
-                    child: CardData("Name:", episode.name),
-                  ),
+                  CardData("Air Date", episode.airDate),
+                  SizedBox(height: 16),
+                  CardData("Episode", episode.episode),
+                  SizedBox(height: 16),
+                  CardData("Name", episode.name),
                 ],
               ),
             ),
-            Container(
-              padding: const EdgeInsets.all(16),
-              color: Colors.indigoAccent.withOpacity(0.1), // Fondo ligeramente azul
-              child: Text(
-                'Related Episodes',
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-              ),
-            ),
-            EpisodeList(size: size, episode: episode),
           ],
         ),
       ),
@@ -67,16 +51,19 @@ class CardData extends StatelessWidget {
   Widget build(BuildContext context) {
     return Card(
       elevation: 4,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(10.0),
+      ),
       child: Padding(
-        padding: const EdgeInsets.all(8.0),
+        padding: const EdgeInsets.all(16.0),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
               text1,
               style: TextStyle(
                 fontWeight: FontWeight.bold,
-                color: Colors.indigo, // Puedes cambiar el color del texto
+                color: Colors.white,
               ),
             ),
             const SizedBox(height: 8),
@@ -84,51 +71,12 @@ class CardData extends StatelessWidget {
               text2,
               style: const TextStyle(
                 overflow: TextOverflow.ellipsis,
-                color: Colors.black87, // Puedes cambiar el color del texto
+                color: Colors.white,
+                fontSize: 16.0,
               ),
             ),
           ],
         ),
-      ),
-    );
-  }
-}
-
-class EpisodeList extends StatefulWidget {
-  const EpisodeList({Key? key, required this.size, required this.episode})
-      : super(key: key);
-
-  final Size size;
-  final Episode episode;
-
-  @override
-  State<EpisodeList> createState() => _EpisodeListState();
-}
-
-class _EpisodeListState extends State<EpisodeList> {
-  @override
-  void initState() {
-    final apiProvider = Provider.of<RickProvider>(context, listen: false);
-    apiProvider.getEpiso(widget.episode);
-    super.initState();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final apiProvider = Provider.of<RickProvider>(context);
-    return SizedBox(
-      height: widget.size.height * 0.35,
-      child: ListView.builder(
-        itemCount: apiProvider.episodes.length,
-        itemBuilder: (context, index) {
-          final episode = apiProvider.episodes[index];
-          return ListTile(
-            tileColor: index % 2 == 0 ? Colors.green.withOpacity(0.1) : null, // Alternar colores de fondo
-            leading: Text(episode.episode!),
-            title: Text(episode.name!),
-            trailing: Text(episode.airDate!),
-          );
-        },
       ),
     );
   }
