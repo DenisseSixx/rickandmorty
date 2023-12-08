@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:rickandmorty/models/character_response.dart';
 import 'package:rickandmorty/providers/rick_provider.dart';
 import 'package:rickandmorty/screens/character_details.dart';
 import 'package:rickandmorty/screens/character_list.dart';
 import 'package:rickandmorty/screens/episode_details.dart';
 import 'package:rickandmorty/screens/episode_screen.dart';
+import 'package:rickandmorty/screens/favorites.dart';
 import 'package:rickandmorty/screens/home_screen.dart';
 import 'package:rickandmorty/screens/pages.dart';
 import 'package:rickandmorty/services/services.dart';
@@ -47,10 +49,15 @@ class MyApp extends StatelessWidget {
         'registro': (_)=> RegistroPage(),
         'home': (_)=> HomeScreen(),
         'checking': (_)=> CheckAuthScreen(),
-        'details':(_)=> CharacterListScreen(p: [],),
-        'personaje':(_)=>CharacterScreen(Detalles: []),
+        'details': (_) {
+  final List<Character> characterList = []; // Aquí deberías tener la lista de personajes que quieres pasar
+  return CharacterListScreen(p: characterList);
+},
+
+        'personaje':(_)=>CharacterScreen( Detalles: [],),
         'episodios':(_)=>EpisodeListScreen(epi: [],),
-        'epidetail':(_)=>EpisodeScreen(Det: [])
+        'epidetail':(_)=>EpisodeScreen(Det: []),
+      'favoritos':(_)=>FavoriteCharactersScreen()
 
        // 'chatacter':()=> CharacterScreen(a: [],)
       },

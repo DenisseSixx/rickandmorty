@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
 
+
 class AuthService extends ChangeNotifier {
   final String _baseUrl = 'loginnenis.somee.com';
   //final String _firebaseToken = 'AIzaSyCD36g1c5N9WPp4PCmVwt2jEzdWIGtglso';
@@ -82,53 +83,96 @@ class AuthService extends ChangeNotifier {
   }
 
 //////////////
-  Future<void> addFavorite(int characterId) async {
-    try {
-      final token = await readToken();
-      final url = Uri.http(_baseUrl, '/api/Cuentas/Favorito');
-      final response = await http.post(
-        url,
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer $token',
-        },
-        body: json.encode({'characterId': characterId}),
+    Future<String?> getUserId() async {
+  try {
+    final token = await readToken();
+
+    if (token != null) {
+      // Decodificar el token para obtener la información del usuario
+      final Map<String, dynamic> decodedToken = json.decode(
+        ascii.decode(base64.decode(base64.normalize(token.split(".")[1]))),
       );
 
-      if (response.statusCode == 200) {
-        print('Personaje agregado a favoritos');
+      // Aquí asumimos que el ID del usuario está presente en el token
+      if (decodedToken.containsKey('sub')) {
+        return decodedToken['sub'];
+      }
+    }
+  } catch (e) {
+    print('Error al obtener el ID del usuario: $e');
+  }
+
+  return null;
+}
+
+Future<void> agregarPersonajeFavorito(String userId, int characterId) async {
+    try {
+      final Map<String, dynamic> data = {
+        'userId': userId,
+        'characterId': characterId,
+      };
+
+      final url = Uri.http(_baseUrl, '/api/Cuentas/PersonajeFavorito');
+
+      final resp = await http.post(
+        url,
+        headers: {"Content-Type": "application/json"},
+        body: json.encode(data),
+      );
+
+      if (resp.statusCode == 200) {
+        print('Personaje favorito agregado con éxito');
       } else {
-        print('Error al agregar personaje a favoritos');
+        print('Error al agregar personaje favorito. Código de estado: ${resp.statusCode}');
       }
     } catch (error) {
-      print('Error: $error');
+      print('Excepción al agregar personaje favorito: $error');
     }
   }
 
-  Future<List<int>> getFavorites() async {
+  Future<void> eliminarPersonajeFavorito(String userId, int characterId) async {
     try {
-      final token = await readToken();
-      final url = Uri.http(_baseUrl, '/api/Cuentas/Favorito');
-      final response = await http.get(
+      final url = Uri.http(_baseUrl, '/api/Cuentas/EliminarPersonajeFavorito');
+
+      final resp = await http.delete(
         url,
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer $token',
-        },
+        headers: {"Content-Type": "application/json"},
+        body: json.encode({
+          'userId': userId,
+          'characterId': characterId,
+        }),
       );
 
-      if (response.statusCode == 200) {
-        final List<dynamic> data = json.decode(response.body);
-        final List<int> favorites =
-            data.map((fav) => fav['characterId'] as int).toList();
-        return favorites;
+      if (resp.statusCode == 200) {
+        print('Personaje favorito eliminado con éxito');
       } else {
-        print('Error al obtener favoritos');
-        return [];
+        print('Error al eliminar personaje favorito. Código de estado: ${resp.statusCode}');
       }
     } catch (error) {
-      print('Error: $error');
+      print('Excepción al eliminar personaje favorito: $error');
+    }
+  }
+
+  Future<List<Map<String, dynamic>>> obtenerPersonajesFavoritos(String userId) async {
+  try {
+    final url = Uri.http(_baseUrl, '/api/Cuentas/ObtenerPersonajesFavoritos/$userId');
+
+    final resp = await http.get(
+      url,
+      headers: {"Content-Type": "application/json"},
+    );
+
+    if (resp.statusCode == 200) {
+      final List<dynamic> data = json.decode(resp.body);
+      return data.cast<Map<String, dynamic>>();
+    } else {
+      print('Error al obtener personajes favoritos. Código de estado: ${resp.statusCode}');
       return [];
     }
+  } catch (error) {
+    print('Excepción al obtener personajes favoritos: $error');
+    return [];
   }
+}
+
 }

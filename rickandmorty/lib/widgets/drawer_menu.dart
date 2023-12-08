@@ -12,6 +12,7 @@ class MenuDrawer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final authService = Provider.of<AuthService>(context, listen: false);
+
 return Drawer(
     child: ListView(
       padding: EdgeInsets.zero,
@@ -21,7 +22,7 @@ return Drawer(
             color: Colors.green,
           ),
           child: Text(
-            'Drawer Header',
+            'WikiRick',
             style: TextStyle(
               color: Colors.white,
               fontSize: 24,
@@ -37,12 +38,14 @@ return Drawer(
           },
         ),
         ListTile(
-          leading: Icon(Icons.account_circle),
+          leading: Icon(Icons.tv),
           title: Text('Capitulos'),
           onTap: (){
             Navigator.pushNamed(context, 'episodios');
           },
         ),
+     
+      
         ListTile(
             leading: const Icon(Icons.exit_to_app),
             title: const Text('Sing out'),

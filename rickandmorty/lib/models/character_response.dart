@@ -112,6 +112,8 @@ class Character {
         created: DateTime.parse(json["created"]),
     );
 
+  get isFavorite => null;
+
     Map<String, dynamic> toJson() => {
         "id": id,
         "name": name,

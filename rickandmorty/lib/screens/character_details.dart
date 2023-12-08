@@ -2,21 +2,95 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:rickandmorty/models/character_response.dart';
 import 'package:rickandmorty/providers/rick_provider.dart';
+import 'package:rickandmorty/services/auth_services.dart';
 
-class CharacterScreen extends StatelessWidget {
-
+class CharacterScreen extends StatefulWidget {
   final List<Character> Detalles;
-  
-  const CharacterScreen({super.key,  required this.Detalles});
+
+  const CharacterScreen({Key? key, required this.Detalles}) : super(key: key);
+
+  @override
+  _CharacterScreenState createState() => _CharacterScreenState();
+}
+
+class _CharacterScreenState extends State<CharacterScreen> {
+  late AuthService _authService;
+  bool isFavorite = false;
+  String message = '';
+
+  @override
+  void initState() {
+    super.initState();
+    _authService = Provider.of<AuthService>(context, listen: false);
+    checkIfFavorite();
+  }
+
+  Future<void> checkIfFavorite() async {
+    final String? userId = await _authService.getUserId();
+
+    if (userId != null && widget.Detalles.isNotEmpty) {
+      final Character character = widget.Detalles.first;
+
+      final List<Map<String, dynamic>> favorites =
+          await _authService.obtenerPersonajesFavoritos(userId);
+
+      setState(() {
+        isFavorite = favorites.any(
+          (favorite) => favorite['characterId'] == character.id,
+        );
+      });
+    }
+  }
+
+  Future<void> toggleFavorite() async {
+    final String? userId = await _authService.getUserId();
+
+    if (userId != null && widget.Detalles.isNotEmpty) {
+      final Character character = widget.Detalles.first;
+
+      if (isFavorite) {
+        await _authService.eliminarPersonajeFavorito(userId, character.id!);
+        setMessage('Personaje eliminado de favoritos');
+      } else {
+        await _authService.agregarPersonajeFavorito(userId, character.id!);
+        setMessage('Personaje agregado a favoritos');
+      }
+
+      setState(() {
+        isFavorite = !isFavorite;
+      });
+    }
+  }
+
+  void setMessage(String newMessage) {
+    setState(() {
+      message = newMessage;
+    });
+    Future.delayed(const Duration(seconds: 2), () {
+      setState(() {
+        message = '';
+      });
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
-    final Character character = ModalRoute.of(context)?.settings.arguments as Character;
+    final Character character =
+        ModalRoute.of(context)?.settings.arguments as Character;
     final size = MediaQuery.of(context).size;
+
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
         title: Text(character.name),
+        actions: [
+          IconButton(
+            onPressed: toggleFavorite,
+            icon: Icon(
+              isFavorite ? Icons.favorite : Icons.favorite_border,
+            ),
+          ),
+        ],
       ),
       body: SizedBox(
         height: double.infinity,
@@ -42,10 +116,9 @@ class CharacterScreen extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
-                cardData("Status:", character.status),
+                  cardData("Status:", character.status),
                   cardData("Specie:", character.species),
                   cardData("Origin:", character.origin.name),
-                 // cardData("Origin:", character.gender),
                   cardData("Gender:", character.gender),
                 ],
               ),
@@ -54,8 +127,17 @@ class CharacterScreen extends StatelessWidget {
               'Episodes',
               style: TextStyle(fontSize: 17),
             ),
-            EpisodeList(size: size, character: character)
-          
+            EpisodeList(size: size, character: character),
+            if (message.isNotEmpty)
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Text(
+                  message,
+                  style: TextStyle(
+                    color: isFavorite ? Colors.red : Colors.green,
+                  ),
+                ),
+              ),
           ],
         ),
       ),
@@ -83,7 +165,8 @@ class CharacterScreen extends StatelessWidget {
 }
 
 class EpisodeList extends StatefulWidget {
-  const EpisodeList({super.key, required this.size, required this.character});
+  const EpisodeList({Key? key, required this.size, required this.character})
+      : super(key: key);
 
   final Size size;
   final Character character;
