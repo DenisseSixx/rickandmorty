@@ -68,7 +68,10 @@ class RickProvider extends ChangeNotifier {
 
     return Future.value(filteredEpisodes);
   }
-
+ Future<List<Character>> loadCharacters() async {
+    await getCharacters(1); // Supongamos que page es 1, puedes ajustar esto según tus necesidades
+    return characters;
+  }
    
 }
   

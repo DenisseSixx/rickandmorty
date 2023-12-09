@@ -26,6 +26,8 @@ class _CharacterScreenState extends State<CharacterScreen> {
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
+    final authService = Provider.of<AuthService>(context, listen: false);
+
   final Character character = ModalRoute.of(context)?.settings.arguments as Character;
     return Scaffold(
       appBar: AppBar(
@@ -108,29 +110,41 @@ class _CharacterScreenState extends State<CharacterScreen> {
   setState(() {
     isFavorite = !isFavorite;
   });
+  print(isFavorite);
 
-  // Obtén los argumentos correctamente
-  final Map<String, dynamic>? args = ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>?;
+  final authService = Provider.of<AuthService>(context, listen: false);
 
-  if (args != null) {
-    final Character character = args['character'] as Character;
-    final String userId = args['userId'] as String;
+  // Obtén la información directamente del argumento
+  final dynamic arguments = ModalRoute.of(context)!.settings.arguments;
 
-    int characterId = character.id; // Character ID es un int, no necesitas convertirlo
+  if (arguments is Character) {
+    final Character character = arguments;
 
-    final authService = Provider.of<AuthService>(context, listen: false);
+    if (character.id != null) {
+      final int characterId = character.id!;
+      final String? userEmail = await authService.getUserId(); // Asegúrate de tener el email del usuario
 
-    // Llama a la función correspondiente en tu servicio
-    if (isFavorite) {
-      print('Agregando a favoritos');
-      await authService.agregarPersonajeFavorito(userId, characterId);
+      if (userEmail != null) {
+        if (isFavorite == true) {
+          print('Agregando a favoritos');
+          await authService.agregarPersonajeFavorito(userEmail, characterId);
+        } else {
+          print('Quitando de favoritos');
+          await authService.eliminarPersonajeFavorito(userEmail, characterId);
+        }
+      } else {
+        print('El email del usuario es nulo');
+        // Puedes mostrar un mensaje al usuario o tomar otras acciones según sea necesario
+      }
     } else {
-      print('Quitando de favoritos');
-      await authService.eliminarPersonajeFavorito(userId, characterId);
+      print('El ID del personaje es nulo');
     }
+  } else {
+    print('Los argumentos no son de tipo Character');
   }
 }
 }
+
 
 
 class EpisodeList extends StatefulWidget {

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:rickandmorty/models/character.dart'; // Importa tu modelo de personaje
 import 'package:rickandmorty/services/auth_services.dart'; // Importa tu servicio aquí
 
 class FavoriteCharactersScreen extends StatelessWidget {
@@ -9,7 +10,7 @@ class FavoriteCharactersScreen extends StatelessWidget {
       appBar: AppBar(
         title: const Text('Personajes Favoritos'),
       ),
-      body: FutureBuilder<List<Map<String, dynamic>>>(
+      body: FutureBuilder<List<Character>>(
         future: obtenerPersonajesFavoritos(context),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
@@ -31,9 +32,21 @@ class FavoriteCharactersScreen extends StatelessWidget {
               itemCount: personajesFavoritos.length,
               itemBuilder: (context, index) {
                 final personaje = personajesFavoritos[index];
+
                 return ListTile(
-                  title: Text(personaje['name']),
-                  subtitle: Text('ID: ${personaje['id']}'),
+                  leading: CircleAvatar(
+                    backgroundImage: NetworkImage(personaje.fullPosterImg ?? ''),
+                  ),
+                  title: Text(personaje.name ?? 'Nombre desconocido'),
+                  subtitle: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('ID: ${personaje.id}'),
+                      Text('Status: ${personaje.status ?? ''}'),
+                      Text('Species: ${personaje.species ?? ''}'),
+                      // Agrega más detalles según sea necesario
+                    ],
+                  ),
                   // Puedes mostrar más detalles del personaje si es necesario
                 );
               },
@@ -44,11 +57,21 @@ class FavoriteCharactersScreen extends StatelessWidget {
     );
   }
 
-  Future<List<Map<String, dynamic>>> obtenerPersonajesFavoritos(BuildContext context) async {
+  Future<List<Character>> obtenerPersonajesFavoritos(BuildContext context) async {
     final userId = await Provider.of<AuthService>(context, listen: false).getUserId();
     if (userId != null) {
-      return await Provider.of<AuthService>(context, listen: false).obtenerPersonajesFavoritos(userId);
+      // Obtener la lista de personajes favoritos por ID del usuario
+      final List<Map<String, dynamic>> personajesData =
+          await Provider.of<AuthService>(context, listen: false).obtenerPersonajesFavoritos(userId);
+
+      // Mapear la lista de mapas a objetos Character
+      final List<Character> personajes =
+          personajesData.map((data) => Character.fromJson(data)).toList();
+
+      return personajes;
     } else {
+      // Muestra un mensaje de error o toma otra acción según tus necesidades
+      print('Error: El ID del usuario es nulo.');
       return [];
     }
   }

@@ -43,23 +43,9 @@ class AuthService extends ChangeNotifier {
     };
     final url = Uri.http(_baseUrl, '/api/Cuentas/Login');
 
-    //final url2 = Uri.https(_baseUrl, '/Prueba/on');
-
-    /*final resp2 = await http.get(url2, headers: <String, String>{
-      'Content-Type': 'application/json; charset=UTF-8',
-      'Accept': 'application/json'
-    });*/
-
     final resp = await http.post(url,
         headers: {"Content-Type": "application/json"},
         body: json.encode(authData));
-
-    /*final resp = await http.post(url,
-        headers: <String, String>{
-          'Content-Type': 'application/json; charset=UTF-8',
-          'Accept': 'application/json'
-        },
-        body: json.encode(authData));*/
 
     final Map<String, dynamic> decodedResp = json.decode(resp.body);
 
@@ -83,19 +69,23 @@ class AuthService extends ChangeNotifier {
   }
 
 //////////////
-    Future<String?> getUserId() async {
+Future<String?> getUserId() async {
   try {
     final token = await readToken();
 
     if (token != null) {
+      print('Decoded Token: $token');
+
       // Decodificar el token para obtener la información del usuario
       final Map<String, dynamic> decodedToken = json.decode(
         ascii.decode(base64.decode(base64.normalize(token.split(".")[1]))),
       );
 
-      // Aquí asumimos que el ID del usuario está presente en el token
+      // Asumimos que el ID del usuario está presente en el token
       if (decodedToken.containsKey('sub')) {
         return decodedToken['sub'];
+      } else if (decodedToken['email'] is List && decodedToken['email'].isNotEmpty) {
+        return decodedToken['email'][0].toString();  // Tomamos el primer correo electrónico si hay varios
       }
     }
   } catch (e) {
@@ -105,54 +95,69 @@ class AuthService extends ChangeNotifier {
   return null;
 }
 
+
+
+
+
+
+
+
+
+
 Future<void> agregarPersonajeFavorito(String userId, int characterId) async {
-    try {
-      final Map<String, dynamic> data = {
-        'id': 0,
+  try {
+    final Map<String, dynamic> data = {
+      'id': 0,
+      'userId': userId,
+      'characterId': characterId,
+    };
+
+    final url = Uri.http(_baseUrl, '/api/Cuentas/Favorito');
+
+    final resp = await http.post(
+      url,
+      headers: {"Content-Type": "application/json"},
+      body: json.encode(data),
+    );
+
+    print('Código de estado de la respuesta: ${resp.statusCode}');
+    print('Respuesta del servidor: ${resp.body}');
+
+    if (resp.statusCode == 200) {
+      print('Personaje favorito agregado con éxito');
+    } else {
+      print('Error al agregar personaje favorito. Detalles: ${resp.body}');
+    }
+  } catch (error) {
+    print('Excepción al agregar personaje favorito: $error');
+  }
+}
+
+Future<void> eliminarPersonajeFavorito(String userId, int characterId) async {
+  try {
+    final url = Uri.http(_baseUrl, '/api/Cuentas/EliminarPersonajeFavorito');
+
+    final resp = await http.delete(
+      url,
+      headers: {"Content-Type": "application/json"},
+      body: json.encode({
         'userId': userId,
         'characterId': characterId,
-      };
+      }),
+    );
 
-      final url = Uri.http(_baseUrl, '/api/Cuentas/Favorito');
+    print('Código de estado de la respuesta: ${resp.statusCode}');
+    print('Respuesta del servidor: ${resp.body}');
 
-      final resp = await http.post(
-        url,
-        headers: {"Content-Type": "application/json"},
-        body: json.encode(data),
-      );
-
-      if (resp.statusCode == 200) {
-        print('Personaje favorito agregado con éxito');
-      } else {
-        print('Error al agregar personaje favorito. Código de estado: ${resp.statusCode}');
-      }
-    } catch (error) {
-      print('Excepción al agregar personaje favorito: $error');
+    if (resp.statusCode == 200) {
+      print('Personaje favorito eliminado con éxito');
+    } else {
+      print('Error al eliminar personaje favorito. Detalles: ${resp.body}');
     }
+  } catch (error) {
+    print('Excepción al eliminar personaje favorito: $error');
   }
-
-  Future<void> eliminarPersonajeFavorito(String userId, int characterId) async {
-    try {
-      final url = Uri.http(_baseUrl, '/api/Cuentas/EliminarPersonajeFavorito');
-
-      final resp = await http.delete(
-        url,
-        headers: {"Content-Type": "application/json"},
-        body: json.encode({
-          'userId': userId,
-          'characterId': characterId,
-        }),
-      );
-
-      if (resp.statusCode == 200) {
-        print('Personaje favorito eliminado con éxito');
-      } else {
-        print('Error al eliminar personaje favorito. Código de estado: ${resp.statusCode}');
-      }
-    } catch (error) {
-      print('Excepción al eliminar personaje favorito: $error');
-    }
-  }
+}
 
   Future<List<Map<String, dynamic>>> obtenerPersonajesFavoritos(String userId) async {
   try {
