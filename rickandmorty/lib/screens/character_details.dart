@@ -5,90 +5,39 @@ import 'package:rickandmorty/providers/rick_provider.dart';
 import 'package:rickandmorty/services/auth_services.dart';
 
 class CharacterScreen extends StatefulWidget {
-  final List<Character> Detalles;
+  final List<Character> detalles;
 
-  const CharacterScreen({Key? key, required this.Detalles}) : super(key: key);
+  const CharacterScreen({Key? key, required this.detalles}) : super(key: key);
 
   @override
   _CharacterScreenState createState() => _CharacterScreenState();
 }
 
 class _CharacterScreenState extends State<CharacterScreen> {
-  late AuthService _authService;
+ 
   bool isFavorite = false;
-  String message = '';
 
   @override
   void initState() {
     super.initState();
-    _authService = Provider.of<AuthService>(context, listen: false);
-    checkIfFavorite();
-  }
-
-  Future<void> checkIfFavorite() async {
-    final String? userId = await _authService.getUserId();
-
-    if (userId != null && widget.Detalles.isNotEmpty) {
-      final Character character = widget.Detalles.first;
-
-      final List<Map<String, dynamic>> favorites =
-          await _authService.obtenerPersonajesFavoritos(userId);
-
-      setState(() {
-        isFavorite = favorites.any(
-          (favorite) => favorite['characterId'] == character.id,
-        );
-      });
-    }
-  }
-
-  Future<void> toggleFavorite() async {
-    final String? userId = await _authService.getUserId();
-
-    if (userId != null && widget.Detalles.isNotEmpty) {
-      final Character character = widget.Detalles.first;
-
-      if (isFavorite) {
-        await _authService.eliminarPersonajeFavorito(userId, character.id!);
-        setMessage('Personaje eliminado de favoritos');
-      } else {
-        await _authService.agregarPersonajeFavorito(userId, character.id!);
-        setMessage('Personaje agregado a favoritos');
-      }
-
-      setState(() {
-        isFavorite = !isFavorite;
-      });
-    }
-  }
-
-  void setMessage(String newMessage) {
-    setState(() {
-      message = newMessage;
-    });
-    Future.delayed(const Duration(seconds: 2), () {
-      setState(() {
-        message = '';
-      });
-    });
+   
   }
 
   @override
   Widget build(BuildContext context) {
-    final Character character =
-        ModalRoute.of(context)?.settings.arguments as Character;
     final size = MediaQuery.of(context).size;
-
+  final Character character = ModalRoute.of(context)?.settings.arguments as Character;
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
         title: Text(character.name),
         actions: [
+          // Botón en el AppBar para agregar o eliminar de favoritos
           IconButton(
-            onPressed: toggleFavorite,
-            icon: Icon(
-              isFavorite ? Icons.favorite : Icons.favorite_border,
-            ),
+            onPressed: () {
+              toggleFavorite();
+            },
+            icon: Icon(isFavorite ? Icons.favorite : Icons.favorite_border),
           ),
         ],
       ),
@@ -128,16 +77,6 @@ class _CharacterScreenState extends State<CharacterScreen> {
               style: TextStyle(fontSize: 17),
             ),
             EpisodeList(size: size, character: character),
-            if (message.isNotEmpty)
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Text(
-                  message,
-                  style: TextStyle(
-                    color: isFavorite ? Colors.red : Colors.green,
-                  ),
-                ),
-              ),
           ],
         ),
       ),
@@ -162,11 +101,40 @@ class _CharacterScreenState extends State<CharacterScreen> {
       ),
     );
   }
+
+  
+
+ void toggleFavorite() async {
+  setState(() {
+    isFavorite = !isFavorite;
+  });
+
+  // Obtén los argumentos correctamente
+  final Map<String, dynamic>? args = ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>?;
+
+  if (args != null) {
+    final Character character = args['character'] as Character;
+    final String userId = args['userId'] as String;
+
+    int characterId = character.id; // Character ID es un int, no necesitas convertirlo
+
+    final authService = Provider.of<AuthService>(context, listen: false);
+
+    // Llama a la función correspondiente en tu servicio
+    if (isFavorite) {
+      print('Agregando a favoritos');
+      await authService.agregarPersonajeFavorito(userId, characterId);
+    } else {
+      print('Quitando de favoritos');
+      await authService.eliminarPersonajeFavorito(userId, characterId);
+    }
+  }
+}
 }
 
+
 class EpisodeList extends StatefulWidget {
-  const EpisodeList({Key? key, required this.size, required this.character})
-      : super(key: key);
+  const EpisodeList({Key? key, required this.size, required this.character}) : super(key: key);
 
   final Size size;
   final Character character;

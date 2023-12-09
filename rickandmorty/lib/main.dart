@@ -28,6 +28,7 @@ void main() => runApp(const AppState());
         ), 
         ChangeNotifierProvider(create: (_)=>RickProvider(),
         lazy: false,)
+        
       ],
       child: MyApp(),
     );//pide varios providers, depende si son varias peticiones http
@@ -54,7 +55,7 @@ class MyApp extends StatelessWidget {
   return CharacterListScreen(p: characterList);
 },
 
-        'personaje':(_)=>CharacterScreen( Detalles: [],),
+        'personaje':(_)=>CharacterScreen( detalles: [],),
         'episodios':(_)=>EpisodeListScreen(epi: [],),
         'epidetail':(_)=>EpisodeScreen(Det: []),
       'favoritos':(_)=>FavoriteCharactersScreen()

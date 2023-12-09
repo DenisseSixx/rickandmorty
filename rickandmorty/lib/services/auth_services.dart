@@ -108,11 +108,12 @@ class AuthService extends ChangeNotifier {
 Future<void> agregarPersonajeFavorito(String userId, int characterId) async {
     try {
       final Map<String, dynamic> data = {
+        'id': 0,
         'userId': userId,
         'characterId': characterId,
       };
 
-      final url = Uri.http(_baseUrl, '/api/Cuentas/PersonajeFavorito');
+      final url = Uri.http(_baseUrl, '/api/Cuentas/Favorito');
 
       final resp = await http.post(
         url,
@@ -172,6 +173,35 @@ Future<void> agregarPersonajeFavorito(String userId, int characterId) async {
   } catch (error) {
     print('Excepción al obtener personajes favoritos: $error');
     return [];
+  }
+}
+
+
+Future<bool> existeJPersonajeFavorito(String userId, int characterId) async {
+  try {
+    final url = Uri.http(_baseUrl, '/api/Cuentas/$userId');
+
+    final resp = await http.get(
+      url,
+      headers: {
+        "Content-Type": "application/json",
+      },
+    );
+
+    if (resp.statusCode == 200) {
+      final List<dynamic> userDataList = json.decode(resp.body);
+
+      // Verificar si existe un juego favorito con el userId y gameId proporcionados
+      return userDataList.any((userData) =>
+          userData['userId'] == userId && userData['characterId'] == characterId);
+    } else {
+      print(
+          'Error al verificar personaje favorito. Código de estado: ${resp.statusCode}');
+      return false;
+    }
+  } catch (error) {
+    print('Excepción al verificar personaje favorito: $error');
+    return false;
   }
 }
 
