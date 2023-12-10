@@ -6,6 +6,7 @@ import 'package:rickandmorty/models/character_response.dart';
 class CharacterSlider extends StatelessWidget {
    final List<Character> characters;
   final String? name;
+  
   const CharacterSlider({super.key, required this.characters, this.name});
 
   @override

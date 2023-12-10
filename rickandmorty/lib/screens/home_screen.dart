@@ -33,7 +33,12 @@ class HomeScreen extends StatelessWidget {
       body: Column(
         children: [
           Image.asset('assets/bar.jpg'),
-          CharacterSlider(characters: rickProvider.characters),
+          Consumer<RickProvider>(
+  builder: (context, rickProvider, child) {
+    return CharacterSlider(characters: rickProvider.characters);
+  },
+)
+,
           Image.asset('assets/rmorty.gif'),
         ],
       ),

@@ -50,24 +50,8 @@ class MyApp extends StatelessWidget {
         'registro': (_)=> RegistroPage(),
         'home': (_)=> HomeScreen(),
         'checking': (_)=> CheckAuthScreen(),
-        'details': (_) {
-  final List<Character> characterList = []; // Aquí deberías tener la lista de personajes que quieres pasar
-  return CharacterListScreen(p: characterList);
-},
-
-        'personaje':(_)=>FutureBuilder<List<Character>>(
-              future: Provider.of<RickProvider>(context, listen: false).loadCharacters(),
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  // Puedes mostrar un indicador de carga mientras se obtienen los datos
-                  return CircularProgressIndicator();
-                } else if (snapshot.hasError) {
-                  // Manejar el error si ocurre
-                  return Text('Error: ${snapshot.error}');
-                } else {
-                  // Construir la pantalla 'personaje' y pasar la lista de personajes
-                  return CharacterScreen(detalles: snapshot.data ?? []);
-                }}),
+        'details': (_) => CharacterListScreen(p: []),
+        'personaje':(_)=>CharacterScreen(Detalles: [], detalles: [],),
         'episodios':(_)=>EpisodeListScreen(epi: [],),
         'epidetail':(_)=>EpisodeScreen(Det: []),
       'favoritos':(_)=>FavoriteCharactersScreen()

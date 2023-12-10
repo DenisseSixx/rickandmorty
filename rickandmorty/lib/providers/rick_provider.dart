@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:rickandmorty/models/character_response.dart';
 import 'package:http/http.dart' as http;
@@ -16,6 +18,7 @@ class RickProvider extends ChangeNotifier {
   List<Location> locations = [];
 
  getCharacters(int page) async {
+  characters.clear();
     var result = await http.get(Uri.https(url, "api/character", {
       'page': page.toString(),
     }));
@@ -72,7 +75,8 @@ class RickProvider extends ChangeNotifier {
     await getCharacters(1); // Supongamos que page es 1, puedes ajustar esto según tus necesidades
     return characters;
   }
-   
+
+
+
 }
-  
 

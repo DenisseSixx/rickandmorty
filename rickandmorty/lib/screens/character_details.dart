@@ -7,7 +7,7 @@ import 'package:rickandmorty/services/auth_services.dart';
 class CharacterScreen extends StatefulWidget {
   final List<Character> detalles;
 
-  const CharacterScreen({Key? key, required this.detalles}) : super(key: key);
+  const CharacterScreen({Key? key, required this.detalles, required List Detalles}) : super(key: key);
 
   @override
   _CharacterScreenState createState() => _CharacterScreenState();

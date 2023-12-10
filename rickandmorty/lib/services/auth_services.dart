@@ -210,4 +210,5 @@ Future<bool> existeJPersonajeFavorito(String userId, int characterId) async {
   }
 }
 
+
 }

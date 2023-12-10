@@ -1,78 +1,89 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:rickandmorty/models/character.dart'; // Importa tu modelo de personaje
-import 'package:rickandmorty/services/auth_services.dart'; // Importa tu servicio aquí
+import 'package:rickandmorty/models/character_response.dart';
+import 'package:rickandmorty/providers/rick_provider.dart';
+import 'package:rickandmorty/services/auth_services.dart';
 
-class FavoriteCharactersScreen extends StatelessWidget {
+class FavoriteCharactersScreen extends StatefulWidget {
+  @override
+  _FavoriteCharactersScreenState createState() => _FavoriteCharactersScreenState();
+}
+
+class _FavoriteCharactersScreenState extends State<FavoriteCharactersScreen> {
+  List<Character> favoriteCharacters = [];
+  bool loadedOnce = false; // Nueva bandera
+
+  @override
+  void initState() {
+    super.initState();
+    // Solo carga los personajes la primera vez
+    if (!loadedOnce) {
+      loadFavoriteCharacters();
+      loadedOnce = true; // Establece la bandera después de cargar los personajes
+    }
+  }
+
+  Future<void> loadFavoriteCharacters() async {
+    final userId = await Provider.of<AuthService>(context, listen: false).getUserId();
+
+    if (userId != null) {
+      // Limpiar la lista antes de cargar los personajes favoritos
+      favoriteCharacters.clear();
+
+      List<Map<String, dynamic>> personajesFavoritos =
+          await Provider.of<AuthService>(context, listen: false).obtenerPersonajesFavoritos(userId);
+
+      await Provider.of<RickProvider>(context, listen: false).getCharacters(1); // Ajusta según tus necesidades
+
+      List<int> characterIdsFavoritos = personajesFavoritos.map((map) => map['characterId'] as int).toList();
+
+      List<Character> personajesFavoritosCargados =
+          Provider.of<RickProvider>(context, listen: false)
+              .characters
+              .where((character) => characterIdsFavoritos.contains(character.id))
+              .toList();
+
+      setState(() {
+        favoriteCharacters = personajesFavoritosCargados;
+      });
+    } else {
+      // Manejar el caso en que el userId sea nulo
+      print('Error: El ID del usuario es nulo.');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Personajes Favoritos'),
       ),
-      body: FutureBuilder<List<Character>>(
-        future: obtenerPersonajesFavoritos(context),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(
-              child: CircularProgressIndicator(),
-            );
-          } else if (snapshot.hasError) {
-            return Center(
-              child: Text('Error: ${snapshot.error}'),
-            );
-          } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return const Center(
-              child: Text('No hay personajes favoritos.'),
-            );
-          } else {
-            // Mostrar la lista de personajes favoritos
-            final personajesFavoritos = snapshot.data!;
-            return ListView.builder(
-              itemCount: personajesFavoritos.length,
+      body: favoriteCharacters.isNotEmpty
+          ? ListView.builder(
+              itemCount: favoriteCharacters.length,
               itemBuilder: (context, index) {
-                final personaje = personajesFavoritos[index];
-
+                final personaje = favoriteCharacters[index];
                 return ListTile(
-                  leading: CircleAvatar(
-                    backgroundImage: NetworkImage(personaje.fullPosterImg ?? ''),
-                  ),
                   title: Text(personaje.name ?? 'Nombre desconocido'),
-                  subtitle: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text('ID: ${personaje.id}'),
-                      Text('Status: ${personaje.status ?? ''}'),
-                      Text('Species: ${personaje.species ?? ''}'),
-                      // Agrega más detalles según sea necesario
-                    ],
+                  subtitle: Text('ID: ${personaje.id}'),
+                  leading: Container(
+                    width: 50,
+                    height: 50,
+                    child: CircleAvatar(
+                      backgroundImage: NetworkImage(personaje.image ?? ''),
+                    ),
                   ),
+                  // Nueva adición: Agregar onTap para la navegación
+                  onTap: () {
+                    Navigator.pushNamed(context, 'personaje', arguments: personaje);
+                  },
                   // Puedes mostrar más detalles del personaje si es necesario
                 );
               },
-            );
-          }
-        },
-      ),
+            )
+          : Center(
+              child: Text('No hay personajes favoritos.'),
+            ),
     );
-  }
-
-  Future<List<Character>> obtenerPersonajesFavoritos(BuildContext context) async {
-    final userId = await Provider.of<AuthService>(context, listen: false).getUserId();
-    if (userId != null) {
-      // Obtener la lista de personajes favoritos por ID del usuario
-      final List<Map<String, dynamic>> personajesData =
-          await Provider.of<AuthService>(context, listen: false).obtenerPersonajesFavoritos(userId);
-
-      // Mapear la lista de mapas a objetos Character
-      final List<Character> personajes =
-          personajesData.map((data) => Character.fromJson(data)).toList();
-
-      return personajes;
-    } else {
-      // Muestra un mensaje de error o toma otra acción según tus necesidades
-      print('Error: El ID del usuario es nulo.');
-      return [];
-    }
   }
 }
