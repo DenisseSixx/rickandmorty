@@ -110,11 +110,8 @@ class _CharacterScreenState extends State<CharacterScreen> {
   setState(() {
     isFavorite = !isFavorite;
   });
-  print(isFavorite);
 
   final authService = Provider.of<AuthService>(context, listen: false);
-
-  // Obtén la información directamente del argumento
   final dynamic arguments = ModalRoute.of(context)!.settings.arguments;
 
   if (arguments is Character) {
@@ -122,19 +119,27 @@ class _CharacterScreenState extends State<CharacterScreen> {
 
     if (character.id != null) {
       final int characterId = character.id!;
-      final String? userEmail = await authService.getUserId(); // Asegúrate de tener el email del usuario
+      final String? userEmail = await authService.getUserId();
 
       if (userEmail != null) {
-        if (isFavorite == true) {
-          print('Agregando a favoritos');
-          await authService.agregarPersonajeFavorito(userEmail, characterId);
-        } else {
-          print('Quitando de favoritos');
-          await authService.eliminarPersonajeFavorito(userEmail, characterId);
+        try {
+          if (isFavorite) {
+            print('Agregando a favoritos');
+            await authService.agregarPersonajeFavorito(userEmail, characterId);
+          } else {
+            print('Quitando de favoritos');
+            await authService.eliminarPersonajeFavorito(userEmail, characterId);
+
+            // Si se eliminó con éxito de la base de datos, también quítalo de la lista local
+            setState(() {
+              isFavorite = false;
+            });
+          }
+        } catch (e) {
+          print('Error al manejar la lista de favoritos: $e');
         }
       } else {
         print('El email del usuario es nulo');
-        // Puedes mostrar un mensaje al usuario o tomar otras acciones según sea necesario
       }
     } else {
       print('El ID del personaje es nulo');
@@ -143,6 +148,7 @@ class _CharacterScreenState extends State<CharacterScreen> {
     print('Los argumentos no son de tipo Character');
   }
 }
+
 }
 
 

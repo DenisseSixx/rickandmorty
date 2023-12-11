@@ -133,31 +133,57 @@ Future<void> agregarPersonajeFavorito(String userId, int characterId) async {
   }
 }
 
-Future<void> eliminarPersonajeFavorito(String userId, int characterId) async {
+ Future<void> eliminarPersonajeFavorito(String userId, int characterId) async {
   try {
-    final url = Uri.http(_baseUrl, '/api/Cuentas/EliminarPersonajeFavorito');
+    final urlb = Uri.http(_baseUrl, '/api/Cuentas/ObtenerPersonajesFavoritos/$userId');
+    print('URL de solicitud: $urlb');
 
-    final resp = await http.delete(
-      url,
+    final resp2 = await http.get(
+      urlb,
       headers: {"Content-Type": "application/json"},
-      body: json.encode({
-        'userId': userId,
-        'characterId': characterId,
-      }),
     );
 
-    print('Código de estado de la respuesta: ${resp.statusCode}');
-    print('Respuesta del servidor: ${resp.body}');
+    final List<dynamic> userDataList = json.decode(resp2.body);
+    print('userda');
+    print(userDataList);
 
-    if (resp.statusCode == 200) {
-      print('Personaje favorito eliminado con éxito');
-    } else {
-      print('Error al eliminar personaje favorito. Detalles: ${resp.body}');
+    // Recorrer la lista de userData para buscar coincidencias
+    for (final userData in userDataList) {
+      int registroId = userData['id'];
+
+      // Verificar si userId y gameId coinciden con los de la base de datos
+      if (userData['userId'] == userId && userData['characterId'] == characterId) {
+        final Map<String, dynamic> data = {
+          'id': registroId,
+          'userId': userId,
+          'characterId': characterId,
+        };
+
+        final url = Uri.http(_baseUrl, '/api/Cuentas/EliminarPersonajeFavorito');
+
+        final resp = await http.delete(
+          url,
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: json.encode(data),
+        );
+
+        if (resp.statusCode == 200) {
+          print('Personaje favorito eliminado con éxito');
+        } else {
+          print('Error al eliminar personaje favorito. Código de estado: ${resp.statusCode}');
+        }
+      } else {
+        print('No se encontró coincidencia en la base de datos');
+      }
     }
   } catch (error) {
     print('Excepción al eliminar personaje favorito: $error');
   }
 }
+
+
 
   Future<List<Map<String, dynamic>>> obtenerPersonajesFavoritos(String userId) async {
   try {
@@ -209,6 +235,4 @@ Future<bool> existeJPersonajeFavorito(String userId, int characterId) async {
     return false;
   }
 }
-
-
-}
+  }
