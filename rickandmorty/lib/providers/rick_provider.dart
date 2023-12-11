@@ -18,7 +18,7 @@ class RickProvider extends ChangeNotifier {
   List<Location> locations = [];
 
  getCharacters(int page) async {
-  characters.clear();
+ 
     var result = await http.get(Uri.https(url, "api/character", {
       'page': page.toString(),
     }));
@@ -76,7 +76,15 @@ class RickProvider extends ChangeNotifier {
     return characters;
   }
 
-
+getCharacters2(int page) async {
+  characters.clear();
+    var result = await http.get(Uri.https(url, "api/character", {
+      'page': page.toString(),
+    }));
+    final response = CharacterResponse.fromRawJson(result.body);
+    characters.addAll(response.results);
+    notifyListeners();
+  }
 
 }
 

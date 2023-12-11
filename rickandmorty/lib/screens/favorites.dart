@@ -33,7 +33,7 @@ class _FavoriteCharactersScreenState extends State<FavoriteCharactersScreen> {
       List<Map<String, dynamic>> personajesFavoritos =
           await Provider.of<AuthService>(context, listen: false).obtenerPersonajesFavoritos(userId);
 
-      await Provider.of<RickProvider>(context, listen: false).getCharacters(1); // Ajusta según tus necesidades
+      await Provider.of<RickProvider>(context, listen: false).getCharacters2(1); // Ajusta según tus necesidades
 
       List<int> characterIdsFavoritos = personajesFavoritos.map((map) => map['characterId'] as int).toList();
 
