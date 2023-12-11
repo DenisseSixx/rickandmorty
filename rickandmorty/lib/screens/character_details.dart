@@ -14,13 +14,27 @@ class CharacterScreen extends StatefulWidget {
 }
 
 class _CharacterScreenState extends State<CharacterScreen> {
- 
   bool isFavorite = false;
 
   @override
   void initState() {
     super.initState();
-   
+    Future.delayed(Duration.zero, () async {
+      final authService = Provider.of<AuthService>(context, listen: false);
+      final dynamic arguments = ModalRoute.of(context)!.settings.arguments;
+      final String? userEmail = await authService.getUserId();
+
+      if (arguments is Character && userEmail != null) {
+        final Character character = arguments;
+        
+        // Verificar si el personaje ya está en favoritos
+        final exists = await authService.existeJPersonajeFavorito(userEmail, character.id);
+
+        setState(() {
+          isFavorite = exists;
+        });
+      }
+    });
   }
 
   @override
@@ -106,49 +120,46 @@ class _CharacterScreenState extends State<CharacterScreen> {
 
   
 
- void toggleFavorite() async {
-  setState(() {
-    isFavorite = !isFavorite;
-  });
+void toggleFavorite() async {
+    final authService = Provider.of<AuthService>(context, listen: false);
+    final dynamic arguments = ModalRoute.of(context)!.settings.arguments;
 
-  final authService = Provider.of<AuthService>(context, listen: false);
-  final dynamic arguments = ModalRoute.of(context)!.settings.arguments;
+    if (arguments is Character) {
+      final Character character = arguments;
 
-  if (arguments is Character) {
-    final Character character = arguments;
+      if (character.id != null) {
+        final int characterId = character.id!;
+        final String? userEmail = await authService.getUserId();
 
-    if (character.id != null) {
-      final int characterId = character.id!;
-      final String? userEmail = await authService.getUserId();
+        if (userEmail != null) {
+          try {
+            // Verificar si el personaje ya está en favoritos
+            final exists = await authService.existeJPersonajeFavorito(userEmail, characterId);
 
-      if (userEmail != null) {
-        try {
-          if (isFavorite) {
-            print('Agregando a favoritos');
-            await authService.agregarPersonajeFavorito(userEmail, characterId);
-          } else {
-            print('Quitando de favoritos');
-            await authService.eliminarPersonajeFavorito(userEmail, characterId);
-
-            // Si se eliminó con éxito de la base de datos, también quítalo de la lista local
             setState(() {
-              isFavorite = false;
+              isFavorite = exists;
             });
+
+            if (isFavorite) {
+              print('Quitando de favoritos');
+              await authService.eliminarPersonajeFavorito(userEmail, characterId);
+            } else {
+              print('Agregando a favoritos');
+              await authService.agregarPersonajeFavorito(userEmail, characterId);
+            }
+          } catch (e) {
+            print('Error al manejar la lista de favoritos: $e');
           }
-        } catch (e) {
-          print('Error al manejar la lista de favoritos: $e');
+        } else {
+          print('El email del usuario es nulo');
         }
       } else {
-        print('El email del usuario es nulo');
+        print('El ID del personaje es nulo');
       }
     } else {
-      print('El ID del personaje es nulo');
+      print('Los argumentos no son de tipo Character');
     }
-  } else {
-    print('Los argumentos no son de tipo Character');
   }
-}
-
 }
 
 

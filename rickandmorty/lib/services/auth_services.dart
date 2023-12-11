@@ -210,7 +210,7 @@ Future<void> agregarPersonajeFavorito(String userId, int characterId) async {
 
 Future<bool> existeJPersonajeFavorito(String userId, int characterId) async {
   try {
-    final url = Uri.http(_baseUrl, '/api/Cuentas/$userId');
+    final url = Uri.http(_baseUrl, '/api/Cuentas/ObtenerPersonajesFavoritos/$userId');
 
     final resp = await http.get(
       url,
